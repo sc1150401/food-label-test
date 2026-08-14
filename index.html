@@ -28,7 +28,7 @@
 <body>
 <main>
   <h1>食材 QR → 料理卡 → NIIMBOT B1</h1>
-  <p class="lead">Android Chrome 測試版。QR 內容先設定為 <code>FOOD001</code>，對應「小米南瓜粥」。</p>
+  <p class="lead">Android Chrome 多食材測試版。可掃描 <code>FOOD001</code>～<code>FOOD005</code>。</p>
 
   <section class="panel">
     <div class="row">
@@ -98,6 +98,34 @@
       intro: "以小米與南瓜熬煮出溫潤香甜的風味。",
       items: ["小米 50 g", "南瓜 120 g", "水 600 ml", "鹽 少許"],
       steps: ["小米洗淨後浸泡約 20 分鐘", "南瓜去皮切小塊", "小米與水入鍋煮滾", "加入南瓜，小火煮至軟綿", "依喜好加入少許鹽調味"]
+    },
+    FOOD002: {
+      ingredient: "樹豆",
+      title: "樹豆排骨湯",
+      intro: "樹豆搭配排骨慢煮，呈現溫厚而樸實的風味。",
+      items: ["樹豆 80 g", "排骨 300 g", "薑片 3 片", "水 1000 ml", "鹽 少許"],
+      steps: ["樹豆洗淨並預先浸泡", "排骨汆燙後洗淨", "全部食材放入鍋中", "小火燉煮至樹豆鬆軟", "起鍋前加入少許鹽調味"]
+    },
+    FOOD003: {
+      ingredient: "紅藜",
+      title: "紅藜野菜炊飯",
+      intro: "將紅藜與米飯、時蔬一起炊煮，增添口感與穀物香氣。",
+      items: ["紅藜 30 g", "白米 150 g", "時蔬 適量", "水 適量"],
+      steps: ["紅藜與白米分別洗淨", "時蔬切成適口大小", "所有食材放入鍋中", "依一般煮飯方式炊煮", "煮好後拌勻即可享用"]
+    },
+    FOOD004: {
+      ingredient: "刺蔥",
+      title: "刺蔥煎蛋",
+      intro: "以刺蔥特殊香氣搭配雞蛋，是簡單又有特色的料理。",
+      items: ["刺蔥葉 適量", "雞蛋 3 顆", "鹽 少許", "食用油 少許"],
+      steps: ["刺蔥洗淨後切碎", "雞蛋打散並加入刺蔥", "加入少許鹽拌勻", "熱鍋後倒入蛋液", "煎至兩面金黃即可"]
+    },
+    FOOD005: {
+      ingredient: "南瓜",
+      title: "香甜南瓜濃湯",
+      intro: "以南瓜本身的自然甜味製作滑順濃湯。",
+      items: ["南瓜 250 g", "洋蔥 1/4 顆", "水 400 ml", "牛奶 100 ml", "鹽 少許"],
+      steps: ["南瓜去皮切塊", "洋蔥切絲炒香", "加入南瓜與水煮軟", "打成細緻泥狀", "加入牛奶及少許鹽調味"]
     }
   };
 
@@ -194,7 +222,7 @@
     x.textAlign = "center";
     x.fillText("掃描食材・帶走一張料理靈感", c.width/2, bottom+28);
     x.font = "16px sans-serif";
-    x.fillText("TEST / NIIMBOT B1 / FOOD001", c.width/2, bottom+64);
+    x.fillText("TEST / NIIMBOT B1 / " + currentCode, c.width/2, bottom+64);
 
     return c;
   }
