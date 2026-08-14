@@ -15,7 +15,12 @@ button{padding:12px 14px;border:0;border-radius:10px;background:#506851;color:#f
 <section id="staff" class="box hidden"><h2>工作人員設定</h2><p id="ps">印表機尚未連接</p><button id="bt">連接／重新連接 B1</button><button id="clear" class="danger">清空目前料理</button><p>模擬掃描：</p>
 <button class="secondary sim" data-c="FOOD001">＋小米</button><button class="secondary sim" data-c="FOOD002">＋樹豆</button><button class="secondary sim" data-c="FOOD003">＋紅藜</button><button class="secondary sim" data-c="FOOD004">＋刺蔥</button><button class="secondary sim" data-c="FOOD005">＋南瓜</button><br><button id="closeStaff" class="secondary">關閉設定</button></section>
 </div>
-<div id="digital" class="hidden"><section id="digitalCard"><h2 style="text-align:center">南島文化節｜我的慢活菜單</h2><div id="digitalRecipes"></div></section><button id="savePng" class="saveBtn">儲存我的菜單圖片 PNG</button><p id="saveMsg" class="small"></p></div>
+<div id="digital" class="hidden"><section id="digitalCard"><h2 style="text-align:center">南島文化節｜我的慢活菜單</h2><div id="digitalRecipes"></div></section><button id="savePng" class="saveBtn">產生我的菜單圖片</button>
+<p id="saveMsg" class="small">iPhone：產生後長按圖片，選擇「儲存到照片」。</p>
+<div id="imageResult" class="hidden" style="margin-top:14px;text-align:center">
+  <img id="menuImage" alt="我的慢活菜單圖片" style="width:100%;max-width:430px;height:auto;border-radius:14px;border:1px solid #ddd;background:white">
+  <p class="small"><b>iPhone / iPad：</b>長按上方圖片 →「儲存到照片」或「加入照片」。<br><b>Android：</b>可長按圖片儲存。</p>
+</div></div>
 <script src="https://cdn.jsdelivr.net/npm/niimbot-web-bluetooth@1.3.5/src/niimbot.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -41,7 +46,23 @@ function stopCamera(){if(timer)clearInterval(timer);timer=null;if(stream)stream.
 async function connect(){try{$("ps").textContent="尋找 B1…";let i=await Niimbot.identify(MODEL);$("ps").textContent="✓ 已連接 "+(i.label||"B1")}catch(e){$("ps").textContent="連線失敗："+e.message}}
 async function printAll(){if(!sel.length)return $("msg").textContent="請先掃描至少一個食材。";try{renderPaper();await new Promise(r=>setTimeout(r,350));$("msg").textContent="正在確認 B1…";await Niimbot.identify(MODEL);$("msg").textContent="正在列印紙本菜單…";await Niimbot.printImage($("cv").toDataURL("image/png"),{model:MODEL,size:SIZE,copies:1});$("msg").textContent="✓ 列印完成，5 秒後自動清空。";setTimeout(()=>clearAll("已清空，下一位可以開始。"),5000)}catch(e){$("msg").textContent="列印失敗："+e.message}}
 function electronic(){let m=new URLSearchParams(location.search).get("menu");if(!m)return false;let codes=[...new Set(m.split(",").filter(c=>R[c]))];if(!codes.length)return false;$("kiosk").classList.add("hidden");$("digital").classList.remove("hidden");$("digitalRecipes").innerHTML=codes.map((c,n)=>{let r=R[c];return `<div class="recipe"><h3>${String(n+1).padStart(2,"0")} ${r.i}｜${r.t}</h3><b>準備食材</b><p>${r.a}</p><b>料理步驟</b><ol>${r.s.map(s=>`<li>${s}</li>`).join("")}</ol></div>`}).join("");return true}
-$("savePng").onclick=async()=>{try{$("saveMsg").textContent="正在生成圖片…";let c=await html2canvas($("digitalCard"),{scale:2,backgroundColor:"#ffffff"});let a=document.createElement("a");a.download="南島文化節_我的慢活菜單.png";a.href=c.toDataURL("image/png");a.click();$("saveMsg").textContent="✓ PNG 已產生，可保存至手機。"}catch(e){$("saveMsg").textContent="圖片產生失敗："+e.message}};
+$("savePng").onclick=async()=>{
+ try{
+   $("saveMsg").textContent="正在產生菜單圖片…";
+   const c=await html2canvas($("digitalCard"),{
+     scale:2,
+     backgroundColor:"#ffffff",
+     useCORS:true
+   });
+   const data=c.toDataURL("image/png");
+   $("menuImage").src=data;
+   $("imageResult").classList.remove("hidden");
+   $("saveMsg").textContent="✓ 菜單圖片已產生。iPhone 請長按下方圖片，選擇「儲存到照片」。";
+   setTimeout(()=>$("imageResult").scrollIntoView({behavior:"smooth",block:"start"}),100);
+ }catch(e){
+   $("saveMsg").textContent="圖片產生失敗："+e.message;
+ }
+};
 $("scan").onclick=startCamera;$("closeCam").onclick=stopCamera;$("print").onclick=printAll;$("staffBtn").onclick=()=>$("staff").classList.remove("hidden");$("bt").onclick=connect;$("clear").onclick=()=>{if(confirm("確定清空目前料理？"))clearAll()};$("closeStaff").onclick=()=>$("staff").classList.add("hidden");document.querySelectorAll(".sim").forEach(b=>b.onclick=()=>add(b.dataset.c));
 setInterval(()=>{if(sel.length&&Date.now()-last>60000&&!new URLSearchParams(location.search).get("menu"))clearAll("60 秒未操作，已自動清空。")},5000);if(!electronic()){chips();drawPaper()}
 </script></body></html>
