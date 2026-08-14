@@ -1,0 +1,17 @@
+南島文化節｜慢活菜單 完整測試包
+
+【GitHub Pages 更新】
+1. 將「網站/index.html」上傳到 food-label-test Repository。
+2. 覆蓋原本 index.html。
+3. Commit changes。
+4. 等待 GitHub Pages 重新部署。
+5. Android Chrome 開啟原網址測試。
+
+【工作人員】
+點「⚙ 工作人員設定」：
+- 連接／重新連接 NIIMBOT B1
+- 手動清空目前料理
+- 可直接按 5 個食材模擬掃描
+
+【遊客】
+掃 FOOD001～FOOD005 → 可累積多份料理 → 紙本預覽 → 直接列印。
