@@ -6,6 +6,7 @@
 <section><b>50 × 170 mm 合併預覽</b><canvas id="cv" width="384" height="1360"></canvas></section>
 <section id="staff" class="hidden"><h2>工作人員模式</h2><button id="bt">連接／重新連接 B1</button><button id="clear">清空目前料理</button><div><button class="secondary sim" data-c="FOOD001">＋小米</button><button class="secondary sim" data-c="FOOD002">＋樹豆</button><button class="secondary sim" data-c="FOOD003">＋紅藜</button><button class="secondary sim" data-c="FOOD004">＋刺蔥</button><button class="secondary sim" data-c="FOOD005">＋南瓜</button></div><button id="staffclose" class="secondary">關閉設定</button><p id="ps">印表機尚未連接</p></section>
 <script src="https://cdn.jsdelivr.net/npm/niimbot-web-bluetooth@1.3.5/src/niimbot.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
 <script>
 const R={FOOD001:{i:"小米",t:"小米南瓜粥",a:"小米50g、南瓜120g、水600ml",s:["小米洗淨浸泡","南瓜切塊","加水熬煮"]},FOOD002:{i:"樹豆",t:"樹豆排骨湯",a:"樹豆80g、排骨300g、薑片",s:["樹豆浸泡","排骨汆燙","加水燉煮"]},FOOD003:{i:"紅藜",t:"紅藜野菜炊飯",a:"紅藜30g、白米150g、時蔬",s:["紅藜白米洗淨","加入時蔬","炊煮至熟"]},FOOD004:{i:"刺蔥",t:"刺蔥煎蛋",a:"刺蔥、雞蛋3顆、鹽",s:["刺蔥切碎","拌入蛋液","煎至金黃"]},FOOD005:{i:"南瓜",t:"香甜南瓜濃湯",a:"南瓜250g、洋蔥、牛奶",s:["南瓜切塊","煮軟打泥","加入牛奶"]}};
 const MODEL={label:"Niimbot B1",id:4096,dpi:203,protocol:"v4",task:"b1",density:3,label_type:1,speed:1,name_prefixes:["B1"]};
@@ -14,12 +15,50 @@ let sel=[],stream,timer,last=Date.now(),hold;const $=x=>document.getElementById(
 function chips(){$("chips").innerHTML=sel.length?sel.map(c=>"<span>"+R[c].i+"｜"+R[c].t+"</span>").join(""):"尚未加入料理"}
 function add(c){touch();if(!R[c])return $("msg").textContent="未知 QR："+c;if(sel.includes(c))return $("msg").textContent=R[c].i+" 已加入";sel.push(c);chips();draw();$("msg").textContent="已加入 "+R[c].i+"，目前 "+sel.length+" 道";stop()}
 function clearAll(t="已清空，請掃描第一張食材介紹卡。"){sel=[];chips();draw();$("msg").textContent=t;touch()}
-function draw(){let c=$("cv"),x=c.getContext("2d");x.fillStyle="white";x.fillRect(0,0,384,1360);x.fillStyle="black";x.strokeStyle="black";x.textBaseline="top";x.textAlign="center";x.font="bold 28px sans-serif";x.fillText("南島文化節",192,28);x.font="bold 36px sans-serif";x.fillText("慢活菜單",192,68);x.beginPath();x.moveTo(22,120);x.lineTo(362,120);x.stroke();if(!sel.length){x.font="22px sans-serif";x.fillText("掃描食材後，料理將合併於此",192,175);return}let top=145,bottom=1170,b=(bottom-top)/sel.length;sel.forEach((c,n)=>{let r=R[c],y=top+n*b;x.textAlign="left";x.font="bold "+(sel.length<=2?32:25)+"px sans-serif";x.fillText(r.i+"｜"+r.t,22,y+8);x.font=(sel.length<=2?21:18)+"px sans-serif";x.fillText("食材："+r.a,22,y+52);let max=sel.length<=2?3:sel.length<=4?2:1;r.s.slice(0,max).forEach((s,j)=>x.fillText((j+1)+". "+s,22,y+88+j*31));if(n<sel.length-1){x.beginPath();x.moveTo(22,y+b-10);x.lineTo(362,y+b-10);x.stroke()}});x.textAlign="center";x.beginPath();x.moveTo(22,1190);x.lineTo(362,1190);x.stroke();x.font="19px sans-serif";x.fillText("掃描 QR 收藏我的電子慢活菜單",192,1212);x.strokeRect(142,1250,100,82);x.font="14px sans-serif";x.fillText("電子菜單 QR",192,1280)}
+function draw(){let c=$("cv"),x=c.getContext("2d");x.fillStyle="white";x.fillRect(0,0,384,1360);x.fillStyle="black";x.strokeStyle="black";x.textBaseline="top";x.textAlign="center";x.font="bold 28px sans-serif";x.fillText("南島文化節",192,28);x.font="bold 36px sans-serif";x.fillText("慢活菜單",192,68);x.beginPath();x.moveTo(22,120);x.lineTo(362,120);x.stroke();if(!sel.length){x.font="22px sans-serif";x.fillText("掃描食材後，料理將合併於此",192,175);return}let top=145,bottom=1170,b=(bottom-top)/sel.length;sel.forEach((c,n)=>{let r=R[c],y=top+n*b;x.textAlign="left";x.font="bold "+(sel.length<=2?32:25)+"px sans-serif";x.fillText(r.i+"｜"+r.t,22,y+8);x.font=(sel.length<=2?21:18)+"px sans-serif";x.fillText("食材："+r.a,22,y+52);let max=sel.length<=2?3:sel.length<=4?2:1;r.s.slice(0,max).forEach((s,j)=>x.fillText((j+1)+". "+s,22,y+88+j*31));if(n<sel.length-1){x.beginPath();x.moveTo(22,y+b-10);x.lineTo(362,y+b-10);x.stroke()}});x.textAlign="center";x.beginPath();x.moveTo(22,1190);x.lineTo(362,1190);x.stroke();x.font="19px sans-serif";x.fillText("掃描 QR 收藏我的電子慢活菜單",192,1212);x.font="14px sans-serif";x.fillText("QR 會依本次料理即時產生",192,1280)}
+
+function electronicMenuURL(){
+  // QR stores selected food IDs in the URL itself; no per-visitor database is required.
+  const base = location.origin + location.pathname;
+  return base + "?menu=" + encodeURIComponent(sel.join(","));
+}
+function drawFinalQR(){
+  return new Promise((resolve)=>{
+    draw();
+    if(!sel.length || typeof QRCode==="undefined"){resolve();return;}
+    const temp=document.createElement("canvas");
+    QRCode.toCanvas(temp,electronicMenuURL(),{width:104,margin:1,errorCorrectionLevel:"M"},(err)=>{
+      if(!err){
+        const x=$("cv").getContext("2d");
+        x.fillStyle="white";x.fillRect(138,1240,108,108);
+        x.drawImage(temp,140,1242,104,104);
+      }
+      resolve();
+    });
+  });
+}
+function renderElectronicMenuFromURL(){
+  const p=new URLSearchParams(location.search);
+  const m=p.get("menu");
+  if(!m)return false;
+  const codes=m.split(",").filter(c=>R[c]);
+  if(!codes.length)return false;
+  sel=[...new Set(codes)];
+  chips();draw();
+  $("scan").style.display="none";
+  $("print").style.display="none";
+  $("msg").innerHTML="這是你的電子慢活菜單，可截圖收藏。";
+  $("staffBtn").style.display="none";
+  document.querySelector("section:nth-of-type(2)")?.classList.add("hidden");
+  drawFinalQR();
+  return true;
+}
+
 async function start(){touch();$("cam").classList.remove("hidden");try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}}});$("video").srcObject=stream;await $("video").play();if("BarcodeDetector"in window){let d=new BarcodeDetector({formats:["qr_code"]});timer=setInterval(async()=>{let a=await d.detect($("video"));if(a.length)add(a[0].rawValue.trim())},400)}}catch(e){$("msg").textContent="相機錯誤："+e.message}}
 function stop(){if(timer)clearInterval(timer);timer=null;if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;$("cam").classList.add("hidden")}
 async function connect(){try{$("ps").textContent="尋找 B1…";let i=await Niimbot.identify(MODEL);$("ps").textContent="✓ 已連接 "+(i.label||"B1")}catch(e){$("ps").textContent="連線失敗："+e.message}}
-async function printAll(){if(!sel.length)return $("msg").textContent="請先加入料理";try{$("msg").textContent="列印中…";await Niimbot.printImage($("cv").toDataURL("image/png"),{model:MODEL,size:SIZE,copies:1});$("msg").textContent="✓ 列印完成，5 秒後清空";setTimeout(()=>clearAll("已清空，下一位可以開始。"),5000)}catch(e){$("msg").textContent="列印失敗："+e.message}}
+async function printAll(){if(!sel.length)return $("msg").textContent="請先加入料理";try{$("msg").textContent="正在產生電子菜單 QR…";await drawFinalQR();$("msg").textContent="列印中…";await Niimbot.printImage($("cv").toDataURL("image/png"),{model:MODEL,size:SIZE,copies:1});$("msg").textContent="✓ 列印完成，5 秒後清空";setTimeout(()=>clearAll("已清空，下一位可以開始。"),5000)}catch(e){$("msg").textContent="列印失敗："+e.message}}
 $("staffBtn").onclick=()=>$("staff").classList.remove("hidden");$("scan").onclick=start;$("close").onclick=stop;$("print").onclick=printAll;$("bt").onclick=connect;$("clear").onclick=()=>{if(confirm("確定清空目前料理？"))clearAll()};$("staffclose").onclick=()=>$("staff").classList.add("hidden");document.querySelectorAll(".sim").forEach(b=>b.onclick=()=>add(b.dataset.c));
 $("logo").onpointerdown=()=>hold=setTimeout(()=>$("staff").classList.remove("hidden"),3000);$("logo").onpointerup=$("logo").onpointerleave=()=>clearTimeout(hold);
-setInterval(()=>{if(sel.length&&Date.now()-last>60000)clearAll("60 秒未操作，已自動清空。")},5000);chips();draw();
+setInterval(()=>{if(sel.length&&Date.now()-last>60000&&!new URLSearchParams(location.search).get("menu"))clearAll("60 秒未操作，已自動清空。")},5000);if(!renderElectronicMenuFromURL()){chips();draw();}
 </script></body></html>
